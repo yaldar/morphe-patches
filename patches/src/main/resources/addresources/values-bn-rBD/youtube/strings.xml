@@ -734,11 +734,11 @@ Second \"item\" text"</string>
   <string name="morphe_exit_fullscreen_entry_3">শুধু ল্যান্ডস্কেপ</string>
   <string name="morphe_exit_fullscreen_entry_4">আনুভূমিক এবং ল্যান্ডস্কেপ</string>
   <!-- layout.player.fullscreen.disableFullscreenGesturesPatch -->
-  <string name="morphe_disable_fullscreen_gestures_title">ফুলস্ক্রিন অঙ্গভঙ্গি</string>
-  <string name="morphe_disable_fullscreen_gestures_summary">ফুলস্ক্রিন মোডে প্রবেশ বা প্রস্থান করার জন্য প্লেয়ারের অঙ্গভঙ্গি</string>
-  <string name="morphe_disable_fullscreen_pulled_up_gesture_title">পোর্ট্রেট সোয়াইপ-আপ অঙ্গভঙ্গি নিষ্ক্রিয় করুন</string>
-  <string name="morphe_disable_fullscreen_sliding_down_gesture_title">পোর্ট্রেট সোয়াইপ-ডাউন অঙ্গভঙ্গি নিষ্ক্রিয় করুন</string>
-  <string name="morphe_disable_fullscreen_dragged_down_gesture_title">ল্যান্ডস্কেপ সোয়াইপ-ডাউন অঙ্গভঙ্গি নিষ্ক্রিয় করুন</string>
+  <string name="morphe_disable_fullscreen_gestures_title">পুরো স্ক্রিন জুড়ে জেসচার ব্যবহার করুন</string>
+  <string name="morphe_disable_fullscreen_gestures_summary">ভিডিও প্লেয়ারে পুরো স্ক্রিন চালু বা বন্ধ করতে জেসচার ব্যবহার করুন</string>
+  <string name="morphe_disable_fullscreen_pulled_up_gesture_title">পোর্ট্রেট মোডে ওপরের দিকে সোয়াইপ জেসচার বন্ধ করুন</string>
+  <string name="morphe_disable_fullscreen_sliding_down_gesture_title">পোর্ট্রেট মোডে নিচের দিকে সোয়াইপ জেসচার বন্ধ করুন</string>
+  <string name="morphe_disable_fullscreen_dragged_down_gesture_title">ল্যান্ডস্কেপ মোডে নিচের দিকে সোয়াইপ জেসচার বন্ধ করুন</string>
   <!-- layout.player.fullscreen.openVideosFullscreen -->
   <string name="morphe_open_videos_fullscreen_portrait_title">পূর্ণ পর্দায় ভিডিও খুলুন</string>
   <!-- layout.player.overlay.customPlayerOverlayOpacityPatch -->
