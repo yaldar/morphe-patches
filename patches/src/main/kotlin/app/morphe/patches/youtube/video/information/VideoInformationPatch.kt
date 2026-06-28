@@ -24,7 +24,6 @@ import app.morphe.patcher.util.proxy.mutableTypes.MutableClass
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod.Companion.toMutable
 import app.morphe.patcher.util.smali.toInstructions
-import app.morphe.patches.shared.misc.videoinformation.PlayerControllerSetTimeReferenceFingerprint
 import app.morphe.patches.youtube.misc.extension.sharedExtensionPatch
 import app.morphe.patches.youtube.misc.playservice.is_20_49_or_greater
 import app.morphe.patches.youtube.misc.playservice.versionCheckPatch
@@ -219,8 +218,8 @@ val videoInformationPatch = bytecodePatch(
          * Set the video time method
          */
         timeMethodRef = WeakReference(
-            PlayerControllerSetTimeReferenceFingerprint
-                .instructionMatches.first().getMethodCalled()
+            PlayerControllerSetTimeReferenceFingerprint.instructionMatches.first()
+                .getMethodCalled()
         )
 
         val setPlaybackSpeedMethodReference: MethodReference

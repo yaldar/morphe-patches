@@ -400,12 +400,7 @@ public abstract class AbstractPreferenceFragment extends PreferenceFragment {
                                              @NonNull Setting<?> setting,
                                              boolean applySettingToPreference) {
         if (pref instanceof SwitchPreference switchPref) {
-            // Skip sync when the Setting's backing type does not match SwitchPreference's boolean model.
-            // The preference overrides persistBoolean/getPersistedBoolean and maps the boolean
-            // to a non-boolean backing on its own.
-            if (!(setting instanceof BooleanSetting boolSetting)) {
-                return;
-            }
+            BooleanSetting boolSetting = (BooleanSetting) setting;
             if (applySettingToPreference) {
                 switchPref.setChecked(boolSetting.get());
             } else {

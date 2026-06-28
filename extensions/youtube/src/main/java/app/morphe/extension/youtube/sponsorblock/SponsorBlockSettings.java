@@ -5,6 +5,7 @@ import static app.morphe.extension.shared.StringRef.str;
 import android.app.Activity;
 import android.app.Dialog;
 import android.util.Pair;
+import android.util.Patterns;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -13,22 +14,30 @@ import androidx.annotation.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Locale;
+import java.util.UUID;
+
 import app.morphe.extension.shared.Logger;
 import app.morphe.extension.shared.Utils;
 import app.morphe.extension.shared.settings.Setting;
-import app.morphe.extension.shared.sponsorblock.SponsorBlockHelpers;
-import app.morphe.extension.shared.sponsorblock.objects.CategoryBehaviour;
-import app.morphe.extension.shared.sponsorblock.objects.SegmentCategory;
 import app.morphe.extension.shared.ui.CustomDialog;
 import app.morphe.extension.youtube.settings.Settings;
+import app.morphe.extension.youtube.sponsorblock.objects.CategoryBehaviour;
+import app.morphe.extension.youtube.sponsorblock.objects.SegmentCategory;
+import app.morphe.extension.youtube.sponsorblock.ui.SponsorBlockPreferenceGroup;
 
 @SuppressWarnings("NewApi")
 public class SponsorBlockSettings {
+    /**
+     * Minimum length an SB user ID must be, as set by SB API.
+     */
+    private static final int SB_PRIVATE_USER_ID_MINIMUM_LENGTH = 30;
 
     public static final Setting.ImportExportCallback SB_IMPORT_EXPORT_CALLBACK = new Setting.ImportExportCallback() {
         @Override
         public void settingsImported(@Nullable Activity context) {
             SegmentCategory.loadAllCategoriesFromSettings();
+            SponsorBlockPreferenceGroup.settingsImported = true;
         }
         @Override
         public void settingsExported(@Nullable Activity context) {
@@ -81,7 +90,7 @@ public class SponsorBlockSettings {
             if (settingsJson.has("userID")) {
                 // User id does not exist if user never voted or created any segments.
                 String userID = settingsJson.getString("userID");
-                if (SponsorBlockHelpers.isValidSBUserID(userID)) {
+                if (isValidSBUserID(userID)) {
                     Settings.SB_PRIVATE_USER_ID.save(userID);
                 }
             }
@@ -91,7 +100,7 @@ public class SponsorBlockSettings {
             Settings.SB_VIDEO_LENGTH_WITHOUT_SEGMENTS.save(settingsJson.getBoolean("showTimeWithSkips"));
 
             String serverAddress = settingsJson.getString("serverAddress");
-            if (SponsorBlockHelpers.isValidSBServerAddress(serverAddress)) {
+            if (isValidSBServerAddress(serverAddress)) {
                 Settings.SB_API_URL.save(serverAddress);
             }
 
@@ -150,7 +159,7 @@ public class SponsorBlockSettings {
                     categorySelectionsArray.put(behaviorObject);
                 }
             }
-            if (SponsorBlockHelpers.userHasSBPrivateID()) {
+            if (SponsorBlockSettings.userHasSBPrivateID()) {
                 json.put("userID", Settings.SB_PRIVATE_USER_ID.get());
             }
             json.put("isVip", Settings.SB_USER_IS_VIP.get());
@@ -181,7 +190,7 @@ public class SponsorBlockSettings {
         initialize();
 
         // If user has a SponsorBlock user ID then show a warning.
-        if (activity != null && SponsorBlockHelpers.userHasSBPrivateID()
+        if (activity != null && SponsorBlockSettings.userHasSBPrivateID()
                 && !Settings.SB_HIDE_EXPORT_WARNING.get()) {
             // Create the custom dialog.
             Pair<Dialog, LinearLayout> dialogPair = CustomDialog.create(
@@ -199,6 +208,65 @@ public class SponsorBlockSettings {
 
             Utils.showDialog(activity, dialogPair.first, false, null);
         }
+    }
+
+    public static boolean isValidSBUserID(@NonNull String userID) {
+        return !userID.isEmpty() && userID.length() >= SB_PRIVATE_USER_ID_MINIMUM_LENGTH;
+    }
+
+    /**
+     * A non-comprehensive check if an SB API server address is valid.
+     */
+    public static boolean isValidSBServerAddress(@NonNull String serverAddress) {
+        if (!Patterns.WEB_URL.matcher(serverAddress).matches()) {
+            return false;
+        }
+        // Verify url is only the server address and does not contain a path such as: "https://sponsor.ajay.app/api/"
+        // Could use Patterns.compile, but this is simpler.
+        final int lastDotIndex = serverAddress.lastIndexOf('.');
+        return lastDotIndex > 0 && !serverAddress.substring(lastDotIndex).contains("/");
+        // Optionally, could also verify the domain exists using "InetAddress.getByName(serverAddress)"
+        // but that should not be done on the main thread.
+        // Instead, assume the domain exists and the user knows what they're doing.
+    }
+
+    /**
+     * @return if the user has ever voted, created a segment, or imported existing SB settings.
+     */
+    public static boolean userHasSBPrivateID() {
+        return !Settings.SB_PRIVATE_USER_ID.get().isEmpty();
+    }
+
+    /**
+     * Use this only if a user ID is required (creating segments, voting).
+     */
+    @NonNull
+    public static String getSBPrivateUserID() {
+        String uuid = Settings.SB_PRIVATE_USER_ID.get();
+        if (uuid.isEmpty()) {
+            uuid = (UUID.randomUUID().toString() +
+                    UUID.randomUUID().toString() +
+                    UUID.randomUUID().toString())
+                    .replace("-", "");
+            Settings.SB_PRIVATE_USER_ID.save(uuid);
+        }
+        return uuid;
+    }
+
+    public static String migrateOldColorString(String colorString, float opacity) {
+        if (colorString.length() >= 8) {
+            return colorString;
+        }
+
+        // Change color string from #RGB to #ARGB using default alpha.
+        if (colorString.startsWith("#")) {
+            colorString = colorString.substring(1);
+        }
+
+        String alphaHex = String.format(Locale.US, "%02X", (int)(opacity * 255));
+        String argbColorString = '#' + alphaHex + colorString.substring(0, 6);
+        Logger.printDebug(() -> "Migrating old color string with default opacity: " + argbColorString);
+        return argbColorString;
     }
 
     private static boolean initialized;
